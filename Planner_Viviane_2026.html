@@ -1,0 +1,1531 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planner 2026</title>
+    <style>
+            
+:root {
+            /* Cores Pastel das Metas */
+            --success: #a6ded3;   /* Verde Pastel (Treino) */
+            --reading: #fecaca;   /* Vermelho Claro/Salmão (Leitura) */
+            --movies:  #bfdbfe;    /* Azul Claro (Filmes) */
+            --dogwalks:#c4b5fd;  /* Roxo Pastel (Passeios) */
+            --study:   #99f6e4;      /* Ciano (Estudo) */ 
+            --mental:  #fcd34d;     /* Amarelo Dourado (Scrapbook) */
+            
+            /* Cores Pastel das Estações */
+            --summer:  #fafae3;    /* Verão */
+            --autumn:  #ffe9d6;    /* Outono */
+            --winter:  #edeeff;    /* Inverno */
+            --spring:  #ffebfa;    /* Primavera */
+
+            --primary: #3d0f32;   /* Títulos */
+            --bg:      #ffffff;
+            --card:    #f9fafb;
+            --text:    #1f2937;
+            --weekend: #f3f4f6;
+            --border:  #e5e7eb;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 0; 
+            display: block; 
+        }
+
+        .main-layout {
+            display: grid;
+            /* Layout de duas colunas: lateral (280px) + conteúdo (restante) */
+            grid-template-columns: 280px 1fr; 
+            gap: 30px;
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 20px; 
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            background: none; 
+            padding: 0;
+            border-radius: 0;
+            box-shadow: none;
+            border: none;
+        }
+
+        h1 { margin: 0 0 10px 0; font-size: 1.75rem; color: var(--primary); }
+        
+        /* Sidebar Fixo */
+        .sidebar-stats {
+            position: sticky; /* Torna o elemento fixo na rolagem */
+            top: 20px; /* Fica a 20px do topo */
+            align-self: start;
+        }
+        
+        /* Stats Grid (agora lista vertical) */
+        .stats-grid {
+            display: flex;
+            flex-direction: column; 
+            gap: 15px;
+            margin-top: 15px;
+            padding: 15px;
+            background: var(--card);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border);
+        }
+
+        /* Contador de Compromissos Anotados (Estrelas) - MOVING TO SIDEBAR */
+        .annual-commitment-counter {
+            text-align: left; /* Ajustado para o sidebar */
+            font-size: 0.8rem;
+            color: #4b5563;
+            margin-top: 15px; /* Espaçamento após o Stats Grid */
+            padding: 15px;
+            background: var(--card);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border);
+            font-weight: 500;
+        }
+        .annual-commitment-counter strong {
+            font-size: 1rem;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        /* Stat Box - MUDANÇA PRINCIPAL PARA FLEXBOX */
+        .stat-box {
+            text-align: left; /* Alinhamento para a lateral */
+            padding: 10px; 
+            background: var(--weekend);
+            border-radius: 8px;
+            position: relative; 
+            
+            /* NOVO: Para alinhar o número e o conteúdo ao lado */
+            display: flex;
+            align-items: center; 
+            gap: 10px; /* Espaço entre o número e o conteúdo */
+        }
+        
+        /* NOVO: Container para o texto e barra de progresso */
+        .stat-content-area {
+            flex-grow: 1; /* Ocupa o espaço restante */
+            display: flex;
+            flex-direction: column; /* Para empilhar label, barra e restante */
+            min-width: 0; /* Ajuda na flexibilidade em layouts menores */
+        }
+
+        /* NOVO: Wrapper para o número de contagem com fundo branco */
+        .stat-value-wrapper {
+            width: fit-content;
+            padding: 4px 10px; /* Aumentei o padding */
+            background-color: white;
+            border-radius: 8px; /* Aumentei o arredondamento */
+            border: 1px solid var(--border); 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            
+            /* Garante que o número não seja espremido */
+            flex-shrink: 0;
+        }
+
+        .stat-value { 
+            font-size: 1.25rem; 
+            font-weight: bold; 
+            display: inline-block; /* Agora dentro do wrapper */
+            line-height: 1.2; 
+            margin: 0;
+            padding: 0;
+        }
+        .stat-label { font-size: 0.75rem; color: #4b5563; margin-top: 3px; }
+        
+        /* Quadrado pequeno com o total de páginas lidas, dentro da box de Leitura */
+        .pages-counter {
+            position: absolute;
+            top: 5px;
+            right: 10px; 
+            background-color: #ac54ff; 
+            color: white;
+            font-size: 0.7rem;
+            font-weight: bold;
+            padding: 2px 5px;
+            border-radius: 4px;
+            line-height: 1;
+        }
+
+        /* Barras de Progresso nos Stats */
+        .stat-progress-container {
+            width: 100%; 
+            height: 5px;
+            background-color: #e5e7eb;
+            border-radius: 99px;
+            margin: 5px 0 0;
+            overflow: hidden;
+        }
+        .stat-progress-bar {
+            height: 100%;
+            transition: width 0.3s ease;
+            border-radius: 99px;
+        }
+
+        /* Calendar Grid */
+        .months-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .month-card {
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            border: 1px solid var(--border);
+            transition: background-color 0.3s;
+        }
+
+        /* Cores das Estações no Card e Título */
+        .month-card.summer { background-color: var(--summer); }
+        .month-card.autumn { background-color: var(--autumn); }
+        .month-card.winter { background-color: var(--winter); }
+        .month-card.spring { background-color: var(--spring); }
+
+        /* Ajuste de cores de texto para melhor contraste nos tonos pastel */
+        .month-card.summer .month-title, .month-card.summer .day-header { color: #555; }
+        .month-card.autumn .month-title, .month-card.autumn .day-header { color: #842f00; }
+        .month-card.winter .month-title, .month-card.winter .day-header { color: #2a3c74; }
+        .month-card.spring .month-title, .month-card.spring .day-header { color: #831843; }
+        
+        .month-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-transform: capitalize;
+            text-align: center;
+        }
+
+        .days-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr); 
+            gap: 4px;
+        }
+
+        .day-header {
+            font-size: 0.7rem;
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .day {
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 0.8rem;
+            border-radius: 4px;
+            cursor: pointer;
+            border: 1px solid var(--border);
+            position: relative;
+            padding-top: 5px;
+            background-color: var(--card); 
+            /* Para centralizar o número e as bolinhas */
+            justify-content: center; 
+        }
+        
+        /* Ícone de Humor no Canto Superior Direito */
+        .mood-tracker-icon {
+            position: absolute;
+            top: 1px; 
+            right: -2px;
+            font-size: 0.75rem; 
+            line-height: 1;
+            padding: 3px;
+            background-color: ;
+            border-radius: 0 4px 0 4px;
+            z-index: 2;
+        }
+
+        /* Ícone de Compromisso (Estrela) no Canto Superior Esquerdo */
+        .commitment-star {
+            position: absolute;
+            top: 1px; 
+            left: -2px;
+            font-size: 0.8rem; 
+            line-height: 1;
+            padding: 2px 4px; 
+            background-color: ; 
+            color: #d4ac00; 
+            border-radius: 4px 0 4px 0; 
+            z-index: 2;
+            font-weight: bold; 
+            box-shadow: 0 0 px rgba(0,0,0,0.2);
+        }
+
+        .day[data-weekday="0"], .day[data-weekday="6"] {
+            background-color: var(--weekend);
+            color: #6b7280;
+        }
+        
+        /* Estilo para feriados */
+        .day.is-holiday .day-number { 
+            font-weight: bold; 
+            color: var(--primary); 
+        }
+
+        .day.is-holiday {
+            background-color: #eef1f4; 
+        }
+
+        .day:hover { background-color: #f3f4f6; }
+        .day.has-activity { border-color: #9ca3af; }
+
+        /* ESTILO DAS BOLINHAS COLORIDAS - CORRIGIDO */
+        .activity-icons {
+            display: flex; 
+            justify-content: center;
+            align-items: flex-end; /* Alinha os ícones na parte de baixo */
+            flex-wrap: wrap;
+            margin-top: 2px;
+            padding: 0 2px;
+            gap: 2px;
+            width: 100%;
+            height: 18px; /* Dá um espaço para os ícones */
+            box-sizing: border-box;
+        }
+        
+        .activity-dot {
+            width: 8px; /* Tamanho da bolinha */
+            height: 8px; /* Tamanho da bolinha */
+            border-radius: 50%; /* Faz ser um círculo */
+            display: inline-block; 
+            box-shadow: 0 1px 2px rgba(0,0,0,0.2); /* Sombra sutil para destacar */
+        }
+        
+        /* Define as cores das bolinhas com base no data-goal-color */
+        .activity-dot[data-goal-color="study"] { background-color: var(--study); }
+        .activity-dot[data-goal-color="success"] { background-color: var(--success); }
+        .activity-dot[data-goal-color="mental"] { background-color: var(--mental); }
+        .activity-dot[data-goal-color="dogwalks"] { background-color: var(--dogwalks); }
+        .activity-dot[data-goal-color="reading"] { background-color: var(--reading); }
+        .activity-dot[data-goal-color="movies"] { background-color: var(--movies); }
+        /* FIM DO ESTILO DAS BOLINHAS */
+
+
+        /* Popover de Ações (Checklist) */
+        .day-popover {
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+            padding: 10px;
+            z-index: 10;
+            display: none;
+            width: 250px; 
+        }
+        .day.active .day-popover {
+            display: block;
+        }
+        
+        /* Feriado dentro do Popover */
+        .holiday-info {
+            font-size: 0.85rem;
+            padding: 5px;
+            margin-bottom: 8px; 
+            text-align: center;
+            font-weight: bold;
+            color: var(--primary);
+            border-bottom: 1px dashed var(--border);
+        }
+        
+        /* Seção de Compromisso do Dia */
+        .popover-commitment-section {
+            border-bottom: 1px dashed var(--border);
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+
+        .commitment-text-area {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            resize: none;
+            font-family: inherit;
+            font-size: 0.9rem;
+            background-color: #fff; 
+            color: #333;
+            box-sizing: border-box;
+            height: 50px; 
+            margin-top: 5px;
+        }
+        
+        /* Seção de Rastreador de Humor */
+        .popover-mood-selector {
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+        .mood-label {
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: #64748b;
+            margin-bottom: 5px;
+        }
+        .mood-options {
+            display: flex;
+            justify-content: space-between;
+            gap: 5px;
+        }
+        .mood-option-button {
+            flex: 1;
+            padding: 8px 5px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            background-color: var(--weekend);
+            border: 1px solid var(--border);
+            text-align: center;
+            transition: all 0.1s;
+        }
+        .mood-option-button.selected {
+            background-color: #fef08a; /* Amarelo claro para seleção */
+            border-color: #eab308;
+            transform: scale(1.05);
+        }
+        
+        .popover-checklist {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.1s;
+        }
+
+        .checklist-item:hover {
+            background-color: var(--weekend);
+        }
+
+        .item-label {
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .item-label .icon {
+            margin-right: 8px;
+            font-size: 1rem;
+        }
+        
+        /* Estilo para itens que são togglers de sub-seções */
+        .checklist-item.has-sub-options {
+            flex-direction: column;
+            align-items: flex-start;
+            cursor: default; 
+            padding: 0; 
+        }
+        
+        .checklist-item.has-sub-options .item-header {
+             display: flex;
+             align-items: center;
+             justify-content: space-between;
+             width: 100%;
+             padding: 8px 10px;
+             cursor: pointer;
+             border-radius: 6px;
+        }
+        .checklist-item.has-sub-options .item-header:hover {
+             background-color: var(--weekend);
+        }
+        
+        /* Ajuste para mover o ABRIR/FECHAR um pouco para a esquerda, evitando que suma no canto */
+        .checklist-item.has-sub-options .item-header .open-close-label {
+            font-size: 1rem; /* Aumenta um pouco para o ícone */
+            font-weight: bold;
+            color: #64748b;
+            margin-right: 5px; /* Puxa um pouco mais para a esquerda */
+            width: 15px; /* Espaço fixo para o ícone */
+            text-align: center;
+        }
+
+        /* Sub-seção oculta por padrão */
+        .checklist-item.has-sub-options .sub-options {
+            display: none;
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border-top: 1px dashed var(--border);
+            background-color: #fdfdfd;
+            border-radius: 0 0 6px 6px;
+        }
+        .checklist-item.has-sub-options.open .sub-options {
+            display: block;
+        }
+        
+        .sub-option-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        
+        /* Input para Filmes/Séries e Nome do Livro */
+        .movie-input-area, .book-name-area {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            resize: none;
+            font-family: inherit;
+            font-size: 0.9rem;
+            background-color: #fff; 
+            color: #333;
+            box-sizing: border-box;
+            height: 38px;
+            margin-top: 5px;
+        }
+
+
+        /* Estilo para o campo de texto/número de Leitura (Páginas) */
+        .reading-text-area {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            resize: none;
+            font-family: inherit;
+            font-size: 0.9rem;
+            background-color: #fff; 
+            color: #333;
+            box-sizing: border-box;
+            height: 38px;
+            margin-top: 5px;
+        }
+        
+        .reading-text-area::placeholder {
+            color: #999;
+        }
+
+        /* Checkbox Padrão */
+        .item-checkbox {
+            width: 18px;
+            height: 18px;
+            border-radius: 4px;
+            border: 2px solid #9ca3af;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+
+        /* Estilos de fundo para o checklist item quando DONE */
+        .checklist-item[data-goal="estudo"].done { background-color: var(--study); } 
+        .checklist-item[data-goal="treino"].done { background-color: var(--success); } 
+        .checklist-item[data-goal="passeios"].done { background-color: var(--dogwalks); }
+        .checklist-item[data-goal="saude_mental"].done { background-color: var(--mental); } /* Scrapbook */
+
+        /* Estilos de checkbox (visto) quando DONE */
+        .checklist-item[data-goal].done .item-checkbox { 
+            background-color: var(--primary); /* Usa o tom principal para o check */
+            border-color: var(--primary); 
+        }
+
+        .checklist-item.done .item-checkbox:after {
+            content: '✓';
+        }
+
+        .controls {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+        
+        .controls button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 5px;
+            transition: background-color 0.2s;
+        }
+        
+        button.reset {
+            background: none;
+            border: 1px solid #cbd5e1;
+            color: #64748b;
+        }
+        
+        .controls button:hover {
+            background-color: #4338ca;
+        }
+        
+        /* Responsividade para telas menores: Volta para layout de coluna */
+        @media (max-width: 900px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 10px;
+            }
+
+            .sidebar-stats {
+                position: static; 
+                top: auto;
+            }
+            
+            .stats-grid {
+                flex-direction: row; 
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            /* Ajuste para o contador de compromissos no modo responsivo */
+            .annual-commitment-counter {
+                text-align: center;
+            }
+            
+            /* Stat Box - NOVO: Volta para coluna no mobile */
+            .stat-box {
+                flex: 1 1 45%; 
+                min-width: 150px;
+                text-align: center;
+                flex-direction: column; 
+                align-items: center;
+                gap: 0;
+            }
+            
+            .stat-content-area {
+                align-items: center; /* Centraliza o conteúdo no mobile */
+            }
+
+            /* Ajusta o wrapper no mobile para centralizar */
+            .stat-box .stat-value-wrapper {
+                margin: 5px auto; /* Adiciona margem vertical para separar */
+                display: block; /* Volta a ser block para centralizar com margin: auto */
+            }
+
+            .stat-value { font-size: 1rem; }
+            .stat-label { font-size: 0.65rem; }
+            
+            .pages-counter {
+                position: static;
+                display: block;
+                margin-top: 5px;
+                text-align: center;
+                background: none;
+                color: var(--primary);
+                font-size: 0.6rem;
+                padding: 0;
+            }
+            
+            /* Ajuste para o ícone de humor em telas pequenas */
+            .mood-tracker-icon {
+                font-size: 0.6rem;
+                top: -1px;
+                right: -1px;
+            }
+
+            /* Ajuste para o ícone de compromisso em telas pequenas */
+            .commitment-star {
+                font-size: 0.6rem;
+                top: -1px;
+                left: -1px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="main-layout">
+    
+    <div class="sidebar-stats">
+        <header>
+            <h1>Planner 2026</h1>
+        </header>
+        
+        <div class="stats-grid" id="statsGrid">
+        </div>
+        
+        <div id="annualCommitmentCounter" class="annual-commitment-counter"></div>
+    </div>
+
+    <div class="calendar-content">
+        
+        <div class="calendar-container" id="calendarContainer">
+            <div class="months-container" id="calendarGrid">
+            </div>
+        </div>
+
+        <div class="controls">
+            <p>Clique em um dia (incluindo feriados) para marcar as atividades concluídas.</p>
+            <p>O campo **Nome do Livro** avança a meta anual de Leitura. O campo **Páginas Lidas** soma o total lido no ano.</p>
+            
+            <button onclick="exportToCSV()">Exportar para Excel (CSV)</button>
+            <button class="reset" onclick="resetAllData()">Zerar Todas as Metas</button>
+            
+            <p>Os dados são salvos automaticamente neste navegador.</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    const YEAR = 2026;
+    const MONTHS = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+    const DAYS_HEADER = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
+    const DATA_KEY = 'metas2026_consolidated_data'; 
+    
+    // Chaves para armazenar o conteúdo/valor
+    const CUSTOM_COMMITMENT_KEY = 'compromisso_anotado';
+    const TRACKING_PAGES_KEY = 'paginas_lidas';
+    const TRACKING_MOVIE_KEY = 'filme_anotado'; 
+    const TRACKING_BOOK_NAME_KEY = 'nome_livro_anotado'; 
+    
+    // Configuração das Metas (Contagem Sim/Não)
+    const GOALS = {
+        saude_mental: { count: 365, label: 'Scrapbook', icon: '📓', colorKey: 'mental' }, 
+        estudo:   { count: 53, label: 'Estudo', icon: '📖', colorKey: 'study' },
+        treino:   { count: 159, label: 'Treino', icon: '🏋️‍♂️', colorKey: 'success' },
+        passeios: { count: 159, label: 'Passeios', icon: '🐾', colorKey: 'dogwalks' },
+        
+        // Metas Interativas
+        livro_concluido: { count: 12, label: 'Leitura', icon: '📚', colorKey: 'reading', type: 'book_group' }, 
+        filmes: { count: 100, label: 'Filmes/Séries', icon: '🎬', colorKey: 'movies', type: 'text_input' }, 
+    };
+
+    // Rastreador de Humor
+    const MOOD_TRACKER = {
+        key: 'humor',
+        emojis: {
+            'excelente': '🤩',
+            'bom': '😊',
+            'neutro': '😐',
+            'ruim': '😟',
+            'horrível': '😤'
+        }
+    };
+    
+    // Configuração do rastreamento de Páginas
+    const PAGE_TRACKER = { 
+        key: TRACKING_PAGES_KEY, 
+        label: 'Qtde Páginas Lidas', 
+        icon: '📄', 
+        colorKey: 'reading', // Usa a mesma cor de leitura, mas não aparecerá como bolinha, apenas como ícone no popover
+    };
+
+    // Emojis e Cores das Estações
+    const MONTH_SEASONS_DATA = [
+        { name: 'summer', emoji: '☀️' }, 
+        { name: 'summer', emoji: '☀️' }, 
+        { name: 'autumn', emoji: '🍂' }, 
+        { name: 'autumn', emoji: '🍂' }, 
+        { name: 'autumn', emoji: '🍂' }, 
+        { name: 'winter', emoji: '❄️' }, 
+        { name: 'winter', emoji: '❄️' }, 
+        { name: 'winter', emoji: '❄️' }, 
+        { name: 'spring', emoji: '🌸' }, 
+        { name: 'spring', emoji: '🌸' }, 
+        { name: 'spring', emoji: '🌸' }, 
+        { name: 'summer', emoji: '☀️' }, 
+    ];
+    
+    const HOLIDAYS = {
+        "0-1": "Confraternização Universal (Nacional)",
+        "0-20": "Dia de São Sebastião (Municipal - Ribeirão Preto)",
+        "1-16": "Carnaval (Ponto Facultativo Nacional)",
+        "1-17": "Carnaval (Ponto Facultativo Nacional)",
+        "3-3": "Paixão de Cristo (Nacional)",
+        "3-21": "Tiradentes (Nacional)",
+        "4-1": "Dia do Trabalho (Nacional)",
+        "5-4": "Corpus Christi (Municipal - Ribeirão Preto)",
+        "5-19": "Aniversário de Ribeirão Preto (Municipal)",
+        "6-9": "Revolução Constitucionalista (Estadual - SP)",
+        "8-7": "Independência do Brasil (Nacional)",
+        "9-12": "Nossa Senhora Aparecida (Nacional)",
+        "10-2": "Finados (Nacional)",
+        "10-15": "Proclamação da República (Nacional)",
+        "10-20": "Dia Nacional de Zumbi e da Consciência Negra (Nacional)",
+        "11-25": "Natal (Nacional)"
+    };
+
+    let allData = JSON.parse(localStorage.getItem(DATA_KEY)) || {};
+    let activePopover = null; 
+    
+    // --- Funções de Cálculo de Datas (NOVO CÓDIGO AQUI) ---
+    
+    function isWeekend(dayOfWeek) {
+        // Domingo (0) ou Sábado (6)
+        return dayOfWeek === 0 || dayOfWeek === 6; 
+    }
+
+    function isHoliday(monthIndex, day) {
+        // Verifica se o dia é um feriado na lista
+        return HOLIDAYS[`${monthIndex}-${day}`] !== undefined;
+    }
+
+    function calculateBusinessDays() {
+        let totalBusinessDays = 0;
+        let remainingBusinessDays = 0;
+        const today = new Date();
+        const endOfYear = new Date(YEAR, 11, 31);
+        
+        // Itera por todos os dias do ano 2026
+        for (let m = 0; m < 12; m++) {
+            const daysInMonth = new Date(YEAR, m + 1, 0).getDate();
+            for (let d = 1; d <= daysInMonth; d++) {
+                const date = new Date(YEAR, m, d);
+                const dayOfWeek = date.getDay(); // 0=Dom, 1=Seg, ..., 6=Sáb
+                
+                // 1. Verifica se é dia útil (segunda a sexta) e não é feriado
+                if (!isWeekend(dayOfWeek) && !isHoliday(m, d)) {
+                    totalBusinessDays++;
+                    
+                    // 2. Verifica se o dia ainda está no futuro (hoje ou depois)
+                    // (Esta lógica é crucial para o "restante")
+                    if (date >= today) {
+                        remainingBusinessDays++;
+                    }
+                }
+            }
+        }
+        
+        return {
+            total: totalBusinessDays,
+            remaining: remainingBusinessDays 
+        };
+    }
+    
+    // --- FIM DO NOVO CÓDIGO ---
+
+    // --- Cálculo de Dados ---
+
+    function calculateCompletedCounts() {
+        let completedCounts = {};
+        Object.keys(GOALS).forEach(goalKey => completedCounts[goalKey] = 0);
+        
+        Object.keys(allData).forEach(dateKey => {
+            const dayActivities = allData[dateKey];
+            Object.keys(GOALS).forEach(goalKey => {
+                const goal = GOALS[goalKey];
+                
+                if (goal.type === 'text_input' && goalKey === 'filmes') {
+                    // Para Filmes, conta se o campo de texto tem conteúdo
+                    if (dayActivities[TRACKING_MOVIE_KEY] && String(dayActivities[TRACKING_MOVIE_KEY]).trim().length > 0) {
+                         completedCounts[goalKey]++;
+                    }
+                } else if (goal.type === 'book_group' && goalKey === 'livro_concluido') {
+                    // Para Livro Anotado, conta se o campo de nome do livro tem texto
+                    const bookName = dayActivities[TRACKING_BOOK_NAME_KEY];
+                    if (bookName && String(bookName).trim().length > 0) {
+                         completedCounts[goalKey]++;
+                    }
+                } else {
+                    // Para metas simples (treino, estudo, scrapbook, etc.), continua a checagem normal
+                    if (dayActivities[goalKey] === true) {
+                        completedCounts[goalKey]++;
+                    }
+                }
+            });
+        });
+        return completedCounts;
+    }
+    
+    function calculateTotalPages() {
+        let totalPages = 0;
+        Object.keys(allData).forEach(dateKey => {
+            const pagesValue = allData[dateKey][TRACKING_PAGES_KEY];
+            const numericValue = parseInt(pagesValue);
+            
+            if (!isNaN(numericValue) && numericValue > 0) {
+                totalPages += numericValue;
+            }
+        });
+        return totalPages;
+    }
+    
+    function calculateStarCommitments() {
+        let starCommitmentsCount = 0;
+        const key = CUSTOM_COMMITMENT_KEY; 
+
+        Object.keys(allData).forEach(dateKey => {
+            const commitment = allData[dateKey][key];
+            if (commitment && String(commitment).trim().length > 0) {
+                starCommitmentsCount++;
+            }
+        });
+        return starCommitmentsCount;
+    }
+    
+    // --- Renderização de Estatísticas ---
+
+    function renderStats() {
+        const statsGrid = document.getElementById('statsGrid');
+        statsGrid.innerHTML = '';
+        
+        const completedCounts = calculateCompletedCounts();
+        const totalPages = calculateTotalPages();
+
+        // 1. Renderiza as metas de contagem 
+        Object.keys(GOALS).forEach(goalKey => {
+            const goal = GOALS[goalKey];
+            const completed = completedCounts[goalKey] || 0;
+            const remaining = Math.max(0, goal.count - completed);
+            const percent = Math.min(100, (completed / goal.count) * 100).toFixed(0);
+            
+            let pagesCounterHTML = '';
+            
+            if (goalKey === 'livro_concluido') {
+                pagesCounterHTML = `
+                    <div class="pages-counter">
+                        ${totalPages.toLocaleString('pt-BR')} Páginas lidas
+                    </div>
+                `;
+            }
+
+            const statBox = document.createElement('div');
+            statBox.className = 'stat-box';
+            statBox.innerHTML = `
+                ${pagesCounterHTML}
+                
+                <div class="stat-value-wrapper">
+                    <span class="stat-value" style="color: var(--${goal.colorKey});">${completed}</span>
+                </div>
+                
+                <div class="stat-content-area">
+                    <span class="stat-label">${goal.icon} ${goal.label} (${percent}%)</span>
+                    <div class="stat-progress-container">
+                        <div class="stat-progress-bar" style="width: ${percent}%; background-color: var(--${goal.colorKey});"></div>
+                    </div>
+                    <span class="stat-label">${remaining} Restantes</span>
+                </div>
+            `;
+            statsGrid.appendChild(statBox);
+        });
+    }
+    
+   // FUNÇÃO MODIFICADA PARA INCLUIR DIAS ÚTEIS E ALINHAR O COMPROMISSO
+    function renderAnnualCommitmentCounter() {
+        const counterEl = document.getElementById('annualCommitmentCounter');
+        if (counterEl) {
+            const commitmentCount = calculateStarCommitments();
+            const businessDays = calculateBusinessDays();
+            
+            // Reestruturação para incluir as contagens de Dias Úteis
+            counterEl.innerHTML = `
+                <div style="border-bottom: 1px dashed var(--border); padding-bottom: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 0.8rem; color: #4b5563; font-weight: 500;">
+                        📅 Dias úteis:
+                    </span>
+                    <strong style="font-size: 0.75rem; color: var(--primary); font-weight: bold;">
+                        ${businessDays.total}
+                    </strong>
+                </div>
+                
+                <div style="border-bottom: 1px dashed var(--border); padding-bottom: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 0.8rem; color: #4b5563; font-weight: 500;">
+                        ⏳ Dias úteis restantes:
+                    </span>
+                    <strong style="font-size: 0.75rem; color: var(--primary); font-weight: bold;">
+                        ${businessDays.remaining}
+                    </strong>
+                </div>
+
+                <div style="padding-top: 5px; display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 0.8rem; color: #4b5563; font-weight: 500;">
+                        ⭐ Compromissos no ano:
+                    </span>
+                    <strong style="font-size: 0.75rem; color: var(--primary); font-weight: bold;">
+                        ${commitmentCount}
+                    </strong>
+                </div>
+                `;
+        }
+    }
+    
+    // --- Renderização do Calendário e Popover ---
+
+    function renderCalendar() {
+        const container = document.getElementById('calendarGrid');
+        container.innerHTML = '';
+
+        MONTHS.forEach((monthName, monthIndex) => {
+            const seasonData = MONTH_SEASONS_DATA[monthIndex];
+            const monthDiv = createMonthCard(monthName, seasonData);
+            const grid = monthDiv.querySelector('.days-grid');
+
+            DAYS_HEADER.forEach(d => {
+                const dh = document.createElement('div');
+                dh.className = 'day-header';
+                dh.textContent = d;
+                grid.appendChild(dh);
+            });
+
+            const date = new Date(YEAR, monthIndex, 1);
+            const daysInMonth = new Date(YEAR, monthIndex + 1, 0).getDate();
+            const startDay = date.getDay(); 
+
+            for (let i = 0; i < startDay; i++) {
+                grid.appendChild(createEmptyDay());
+            }
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateKey = `${monthIndex}-${day}`;
+                const dayActivities = allData[dateKey] || {};
+                const isHoliday = HOLIDAYS[dateKey] !== undefined;
+                const dayEl = createDayElement(day, monthIndex, dateKey, dayActivities, isHoliday); 
+                grid.appendChild(dayEl);
+            }
+
+            container.appendChild(monthDiv);
+        });
+        
+        renderAnnualCommitmentCounter();
+    }
+
+    function createMonthCard(monthName, seasonData) {
+        const monthDiv = document.createElement('div');
+        monthDiv.className = `month-card ${seasonData.name}`; 
+        const title = document.createElement('div');
+        title.className = 'month-title';
+        title.textContent = `${seasonData.emoji} ${monthName}`;
+        monthDiv.appendChild(title);
+        const grid = document.createElement('div');
+        grid.className = 'days-grid';
+        monthDiv.appendChild(grid);
+        return monthDiv;
+    }
+
+    function createEmptyDay() {
+        const empty = document.createElement('div');
+        empty.className = 'day empty';
+        return empty;
+    }
+    
+    // FUNÇÃO AUXILIAR PARA CRIAR A BOLINHA COLORIDA
+    function createActivityDot(colorKey) {
+        const dot = document.createElement('span');
+        dot.className = 'activity-dot';
+        dot.dataset.goalColor = colorKey; // Usa data attribute para definir a cor via CSS
+        return dot;
+    }
+
+    function createDayElement(day, monthIndex, dateKey, dayActivities, isHoliday) {
+        const dayEl = document.createElement('div');
+        const currentDayOfWeek = new Date(YEAR, monthIndex, day).getDay();
+        
+        dayEl.className = 'day';
+        dayEl.dataset.key = dateKey;
+        dayEl.dataset.weekday = currentDayOfWeek;
+        
+        if (isHoliday) {
+            dayEl.classList.add('is-holiday');
+        }
+        
+        const currentMoodKey = dayActivities[MOOD_TRACKER.key];
+        
+        if (currentMoodKey && MOOD_TRACKER.emojis[currentMoodKey]) {
+            const moodIconEl = document.createElement('span');
+            moodIconEl.className = 'mood-tracker-icon';
+            moodIconEl.textContent = MOOD_TRACKER.emojis[currentMoodKey];
+            dayEl.appendChild(moodIconEl);
+        }
+        
+        const dayNumberEl = document.createElement('div');
+        dayNumberEl.className = 'day-number';
+        dayNumberEl.textContent = day;
+        dayEl.appendChild(dayNumberEl);
+
+        const customCommitmentText = dayActivities[CUSTOM_COMMITMENT_KEY];
+        const hasStarCommitment = customCommitmentText && String(customCommitmentText).trim().length > 0;
+
+        if (hasStarCommitment) {
+            const starIconEl = document.createElement('span');
+            starIconEl.className = 'commitment-star';
+            starIconEl.textContent = '⭐';
+            dayEl.appendChild(starIconEl);
+        }
+        
+        // --- ADICIONA E POPULA AS BOLINHAS DE ATIVIDADE ---
+        const iconsDiv = document.createElement('div');
+        iconsDiv.className = 'activity-icons';
+        dayEl.appendChild(iconsDiv);
+        
+        let hasGoalActivity = false;
+
+        // 1. Boolean Goals (Estudo, Treino, Passeios, Scrapbook)
+        Object.keys(GOALS).filter(key => !['filmes', 'livro_concluido'].includes(key)).forEach(goalKey => {
+            if (dayActivities[goalKey] === true) {
+                iconsDiv.appendChild(createActivityDot(GOALS[goalKey].colorKey));
+                hasGoalActivity = true;
+            }
+        });
+
+        // 2. Text Input Goals (Livro Anotado)
+        const bookName = dayActivities[TRACKING_BOOK_NAME_KEY];
+        if (bookName && String(bookName).trim().length > 0) {
+            iconsDiv.appendChild(createActivityDot(GOALS.livro_concluido.colorKey));
+            hasGoalActivity = true;
+        }
+
+        // 3. Text Input Goals (Filmes/Séries)
+        const movieName = dayActivities[TRACKING_MOVIE_KEY];
+        if (movieName && String(movieName).trim().length > 0) {
+            iconsDiv.appendChild(createActivityDot(GOALS.filmes.colorKey));
+            hasGoalActivity = true;
+        }
+        
+        // 4. Se páginas lidas, adiciona bolinha de Leitura
+        const pagesValue = dayActivities[TRACKING_PAGES_KEY];
+        const numericPages = parseInt(pagesValue);
+        if (!isNaN(numericPages) && numericPages > 0 && !hasGoalActivity) {
+            // Se o usuário preencheu apenas páginas, vamos adicionar a bolinha de leitura (reading).
+             if (!bookName) {
+                // Se só tem páginas, a bolinha aparece para indicar atividade de leitura.
+                 iconsDiv.appendChild(createActivityDot(GOALS.livro_concluido.colorKey));
+                 hasGoalActivity = true;
+             }
+        }
+
+
+        // Adiciona a classe visual se houver qualquer atividade
+        if (hasGoalActivity || hasStarCommitment || currentMoodKey) {
+             dayEl.classList.add('has-activity');
+        }
+        // --- FIM DA ADIÇÃO DAS BOLINHAS ---
+        
+        dayEl.appendChild(createPopover(dateKey, dayActivities, isHoliday));
+
+        dayEl.onclick = (event) => togglePopover(dayEl, event);
+        
+        return dayEl;
+    }
+    
+    function createPopover(dateKey, dayActivities, isHoliday) {
+        const popover = document.createElement('div');
+        popover.className = 'day-popover';
+        popover.id = `popover-${dateKey}`;
+        
+        if (isHoliday) {
+            const holidayName = HOLIDAYS[dateKey];
+            const info = document.createElement('div');
+            info.className = 'holiday-info';
+            info.innerHTML = `**Feriado:** ${holidayName}`;
+            popover.appendChild(info);
+        }
+        
+        // Seção de Compromisso do Dia (Estrela)
+        const commitmentSection = document.createElement('div');
+        commitmentSection.className = 'popover-commitment-section';
+        commitmentSection.innerHTML = `
+            <div class="mood-label">Compromisso</div>
+            <textarea 
+                class="commitment-text-area"
+                rows="2" 
+                placeholder="..."
+                data-key="${dateKey}"
+                data-goal="${CUSTOM_COMMITMENT_KEY}"
+                onblur="saveTextGoal('${dateKey}', '${CUSTOM_COMMITMENT_KEY}', this.value)"
+                onclick="event.stopPropagation()"
+                onkeyup="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); this.blur(); }"
+            >${dayActivities[CUSTOM_COMMITMENT_KEY] || ''}</textarea>
+        `;
+        popover.appendChild(commitmentSection);
+
+
+        // Rastreador de Humor
+        const moodSelector = document.createElement('div');
+        moodSelector.className = 'popover-mood-selector';
+        moodSelector.innerHTML = `
+            <div class="mood-label">Como foi o seu dia?</div>
+            <div class="mood-options">
+                ${Object.keys(MOOD_TRACKER.emojis).map(moodKey => `
+                    <button 
+                        class="mood-option-button ${dayActivities[MOOD_TRACKER.key] === moodKey ? 'selected' : ''}" 
+                        data-mood-key="${moodKey}"
+                        onclick="saveMood('${dateKey}', '${moodKey}', this)"
+                    >
+                        ${MOOD_TRACKER.emojis[moodKey]}
+                    </button>
+                `).join('')}
+            </div>
+        `;
+        popover.appendChild(moodSelector);
+        
+        const checklist = document.createElement('div');
+        checklist.className = 'popover-checklist';
+        
+        
+        // 1. Metas de Contagem Simples (Checkbox: Estudo, Treino, Passeios, Scrapbook)
+        Object.keys(GOALS).filter(key => !['filmes', 'livro_concluido'].includes(key)).forEach(goalKey => {
+            const goal = GOALS[goalKey];
+            const isDone = dayActivities[goalKey] === true;
+            
+            const item = document.createElement('div');
+            item.className = `checklist-item ${isDone ? 'done' : ''}`;
+            item.dataset.goal = goalKey;
+            
+            // Aplica a cor de fundo do item 'done' a partir da variável CSS
+            if (isDone) {
+                item.style.backgroundColor = `var(--${goal.colorKey})`; 
+            }
+
+            item.innerHTML = `
+                <span class="item-label">
+                    <span class="icon">${goal.icon}</span> ${goal.label}
+                </span>
+                <span class="item-checkbox"></span>
+            `;
+            
+            item.onclick = (e) => {
+                e.stopPropagation(); 
+                toggleBooleanGoal(dateKey, goalKey);
+            };
+            
+            checklist.appendChild(item);
+        });
+        
+        
+        // 2. Metas Especiais: Leitura (Text Input Nome + Páginas)
+        const readingGoal = GOALS['livro_concluido'];
+        const bookName = dayActivities[TRACKING_BOOK_NAME_KEY] || ''; 
+        const pageValue = dayActivities[TRACKING_PAGES_KEY] || '';
+        
+        const isReadingOpen = (bookName.length > 0) || (pageValue.length > 0 && parseInt(pageValue) > 0); 
+        const readingToggleIcon = isReadingOpen ? '−' : '+'; // Ícone de toggle
+
+        const readingGroup = document.createElement('div');
+        readingGroup.className = `checklist-item has-sub-options ${isReadingOpen ? 'open' : ''}`;
+        
+        readingGroup.innerHTML = `
+            <div class="item-header">
+                <span class="item-label">
+                    <span class="icon">${readingGoal.icon}</span> Leitura
+                </span>
+                <span class="open-close-label" data-icon-closed="+" data-icon-open="−">${readingToggleIcon}</span>
+            </div>
+            <div class="sub-options">
+                <div class="sub-option-item" style="flex-direction: column; align-items: flex-start; padding: 5px 0 10px;">
+                    <span class="item-label" style="font-weight: bold; padding: 5px 0; color: var(--primary);">
+                        <span class="icon">📚</span> Nome do Livro
+                    </span>
+                    <textarea 
+                        class="book-name-area"
+                        rows="1" 
+                        placeholder=". . ."
+                        onblur="saveTextGoal('${dateKey}', '${TRACKING_BOOK_NAME_KEY}', this.value)"
+                        onclick="event.stopPropagation()"
+                        onkeyup="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); this.blur(); }"
+                    >${bookName}</textarea>
+                </div>
+                
+                <div class="sub-option-item" style="flex-direction: column; align-items: flex-start; padding: 5px 0 0;">
+                    <span class="item-label" style="padding: 5px 0; color: var(--primary);">
+                        <span class="icon">${PAGE_TRACKER.icon}</span> ${PAGE_TRACKER.label} 
+                    </span>
+                    <input 
+                        type="number" 
+                        min="0"
+                        class="reading-text-area"
+                        placeholder=". . . "
+                        value="${pageValue}"
+                        onblur="saveTextGoal('${dateKey}', '${TRACKING_PAGES_KEY}', this.value)"
+                        onclick="event.stopPropagation()"
+                    />
+                </div>
+            </div>
+        `;
+        
+        readingGroup.querySelector('.item-header').onclick = (e) => {
+            e.stopPropagation(); 
+            readingGroup.classList.toggle('open');
+            const textSpan = readingGroup.querySelector('.open-close-label');
+            textSpan.textContent = readingGroup.classList.contains('open') ? textSpan.dataset.iconOpen : textSpan.dataset.iconClosed;
+        };
+
+        checklist.appendChild(readingGroup); 
+
+        // 3. Metas Especiais: Filmes/Séries (Text Input) - AGORA COMO GRUPO EXPANSÍVEL
+        const movieGoal = GOALS['filmes'];
+        const movieText = dayActivities[TRACKING_MOVIE_KEY] || '';
+        
+        const isMovieOpen = movieText.length > 0;
+        const movieToggleIcon = isMovieOpen ? '−' : '+'; // Ícone de toggle
+
+        const movieGroup = document.createElement('div');
+        movieGroup.className = `checklist-item has-sub-options ${isMovieOpen ? 'open' : ''}`;
+        
+        movieGroup.innerHTML = `
+            <div class="item-header">
+                <span class="item-label">
+                    <span class="icon">${movieGoal.icon}</span> ${movieGoal.label}
+                </span>
+                <span class="open-close-label" data-icon-closed="+" data-icon-open="−">${movieToggleIcon}</span>
+            </div>
+            <div class="sub-options">
+                <div class="sub-option-item" style="flex-direction: column; align-items: flex-start; padding: 5px 0 0;">
+                    <span class="item-label" style="padding: 5px 0; font-weight: bold; color: var(--primary);">
+                        <span class="icon">${movieGoal.icon}</span> Nome do Filme/Série
+                    </span>
+                    <textarea 
+                        class="movie-input-area"
+                        rows="1" 
+                        placeholder="Ex: Nome do filme ou série"
+                        onblur="saveTextGoal('${dateKey}', '${TRACKING_MOVIE_KEY}', this.value)"
+                        onclick="event.stopPropagation()"
+                        onkeyup="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); this.blur(); }"
+                    >${movieText}</textarea>
+                </div>
+            </div>
+        `;
+
+        movieGroup.querySelector('.item-header').onclick = (e) => {
+            e.stopPropagation(); 
+            movieGroup.classList.toggle('open');
+            const textSpan = movieGroup.querySelector('.open-close-label');
+            textSpan.textContent = movieGroup.classList.contains('open') ? textSpan.dataset.iconOpen : textSpan.dataset.iconClosed;
+        };
+        
+        checklist.appendChild(movieGroup);
+        
+
+        popover.appendChild(checklist);
+        popover.onclick = (e) => e.stopPropagation(); 
+        
+        return popover;
+    }
+
+    // --- Lógica de Interação ---
+    
+    // Função genérica para salvar campos de texto ou número
+    function saveTextGoal(dateKey, goalKey, value) {
+        const trimmedValue = String(value).trim();
+        let finalValue = trimmedValue;
+        
+        if (!allData[dateKey]) {
+            allData[dateKey] = {};
+        }
+
+        // Se for o goal de páginas, tenta converter para número
+        if (goalKey === TRACKING_PAGES_KEY) {
+            const numericValue = parseInt(trimmedValue);
+            if (!isNaN(numericValue) && numericValue > 0) {
+                finalValue = numericValue;
+            } else {
+                finalValue = ''; // Limpa se não for válido
+            }
+        }
+        
+        if (finalValue !== '' && finalValue !== 0) {
+            allData[dateKey][goalKey] = finalValue;
+        } else {
+            delete allData[dateKey][goalKey];
+        }
+        
+        // Limpeza: se o dia não tiver mais atividades, remove a data inteira
+        if (Object.keys(allData[dateKey]).length === 0) {
+             delete allData[dateKey];
+        }
+
+        save();
+        reRenderDay(dateKey); 
+        renderStats(); 
+        if (goalKey === CUSTOM_COMMITMENT_KEY) {
+            renderAnnualCommitmentCounter();
+        }
+    }
+
+
+    function togglePopover(dayEl, event) {
+        event.stopPropagation();
+        
+        if (activePopover && activePopover !== dayEl) {
+            activePopover.classList.remove('active');
+        }
+        
+        dayEl.classList.toggle('active');
+        activePopover = dayEl.classList.contains('active') ? dayEl : null;
+    }
+    
+    function saveMood(dateKey, moodKey, buttonEl) {
+        if (!allData[dateKey]) {
+            allData[dateKey] = {};
+        }
+
+        const currentMood = allData[dateKey][MOOD_TRACKER.key];
+        
+        if (currentMood === moodKey) {
+            delete allData[dateKey][MOOD_TRACKER.key];
+        } else {
+            allData[dateKey][MOOD_TRACKER.key] = moodKey;
+        }
+
+        if (Object.keys(allData[dateKey]).length === 0) {
+             delete allData[dateKey];
+        }
+        
+        const moodButtons = buttonEl.parentNode.querySelectorAll('.mood-option-button');
+        moodButtons.forEach(btn => btn.classList.remove('selected'));
+        if (currentMood !== moodKey) {
+            buttonEl.classList.add('selected');
+        }
+
+        save();
+        reRenderDay(dateKey); 
+    }
+    
+    // Usada para metas simples (Estudo, Treino, Passeios, Scrapbook)
+    function toggleBooleanGoal(dateKey, goalKey) {
+        if (!allData[dateKey]) {
+            allData[dateKey] = {};
+        }
+        
+        // Inverte o estado
+        allData[dateKey][goalKey] = !allData[dateKey][goalKey];
+        
+        // Se desmarcou, remove a chave
+        if (allData[dateKey][goalKey] === false) {
+             delete allData[dateKey][goalKey];
+        }
+        
+        // Limpeza: se o dia não tiver mais atividades, remove a data inteira
+        if (Object.keys(allData[dateKey]).length === 0) {
+             delete allData[dateKey];
+        }
+
+        save();
+        reRenderDay(dateKey); 
+        renderStats(); 
+    }
+
+    function reRenderDay(dateKey) {
+        const dayEl = document.querySelector(`.day[data-key="${dateKey}"]`);
+        if (dayEl) {
+            const [monthIndex, day] = dateKey.split('-').map(Number);
+            
+            const isHoliday = HOLIDAYS[dateKey] !== undefined; 
+            const wasActive = dayEl.classList.contains('active');
+            
+            const newDayEl = createDayElement(day, monthIndex, dateKey, allData[dateKey] || {}, isHoliday);
+            
+            newDayEl.onclick = (event) => togglePopover(newDayEl, event);
+            dayEl.parentNode.replaceChild(newDayEl, dayEl);
+            
+            if (wasActive) {
+                 newDayEl.classList.add('active');
+                 activePopover = newDayEl;
+            }
+        }
+    }
+
+    function save() {
+        localStorage.setItem(DATA_KEY, JSON.stringify(allData));
+    }
+
+    function resetAllData() {
+        if(confirm('Tem certeza que quer apagar todo o progresso de TODAS as metas? Esta ação é irreversível.')) {
+            allData = {};
+            save();
+            init();
+        }
+    }
+    
+    // --- Exportação para CSV ---
+    function exportToCSV() {
+        // Cabeçalho com as colunas (atualizado com Scrapbook e Nome do Livro)
+        const header = ["Data", "Dia da Semana", "Feriado", "Compromisso Anotado (Estrela)", "Humor", "Estudo", "Treino", "Passeios", "Scrapbook", "Filmes/Séries Anotado", "Livro Anotado (Título)", "Qtde Páginas Lidas"]; 
+        let csv = header.join(";") + "\n"; 
+
+        for (let m = 0; m < 12; m++) {
+            const daysInMonth = new Date(YEAR, m + 1, 0).getDate();
+            for (let d = 1; d <= daysInMonth; d++) {
+                const dateKey = `${m}-${d}`;
+                const activities = allData[dateKey] || {};
+                
+                if (Object.keys(activities).length === 0 && HOLIDAYS[dateKey] === undefined) continue;
+
+                const date = new Date(YEAR, m, d);
+                const dayOfWeek = DAYS_HEADER[date.getDay()];
+                const formattedDate = `${d.toString().padStart(2, '0')}/${(m + 1).toString().padStart(2, '0')}/${YEAR}`;
+                
+                const holiday = HOLIDAYS[dateKey] || "";
+                
+                const pages = activities[TRACKING_PAGES_KEY] || 0;
+                
+                const row = [
+                    formattedDate,
+                    dayOfWeek,
+                    `"${holiday.replace(/"/g, '""')}"`, 
+                    `"${(activities[CUSTOM_COMMITMENT_KEY] || "").replace(/"/g, '""')}"`, 
+                    activities.humor || "", 
+                    activities.estudo ? "Sim" : "", 
+                    activities.treino ? "Sim" : "",
+                    activities.passeios ? "Sim" : "", 
+                    activities.saude_mental ? "Sim" : "", // Scrapbook
+                    
+                    // Campos de anotação
+                    `"${(activities[TRACKING_MOVIE_KEY] || "").replace(/"/g, '""')}"`, // Filmes/Séries Anotado
+                    `"${(activities[TRACKING_BOOK_NAME_KEY] || "").replace(/"/g, '""')}"`, // Livro Anotado (Título)
+                    pages, 
+                ];
+
+                csv += row.join(";") + "\n";
+            }
+        }
+
+
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+        
+        link.setAttribute("href", url);
+        link.setAttribute("download", `Metas_2026_Export_${new Date().toISOString().slice(0, 10)}.csv`);
+        link.style.visibility = 'hidden';
+        
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        alert("Dados exportados com sucesso para Metas_2026_Export.csv! Use o ponto e vírgula (;) como delimitador ao abrir no Excel.");
+    }
+    
+    // Fecha popover ao clicar fora
+    document.addEventListener('click', () => {
+        if (activePopover) {
+            activePopover.classList.remove('active');
+            activePopover = null;
+        }
+    });
+
+
+    function init() {
+        renderCalendar();
+        renderStats();
+    }
+
+    // Inicialização
+    init();
+
+</script>
+</body>
+</html>
